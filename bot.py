@@ -15,11 +15,11 @@ from secret import token
 API_TOKEN = token[0]
 LOG_FILE = 'user_log.csv'
 
-# Инициализация бота и диспетчера
+
 bot = Bot(token=API_TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
-# Клавиатура
+
 keyboard = ReplyKeyboardBuilder()
 keyboard.add(
     KeyboardButton(text="Финансы"),
@@ -32,12 +32,12 @@ def log_action(user_id, username, motion, api, api_answer):
     now = datetime.now()
     file_exists = exists(LOG_FILE)
 
-    # Определяем номер лога
+    
     if file_exists:
         with open(LOG_FILE, mode='r', encoding='utf-8') as f:
             log_number = sum(1 for _ in f)
     else:
-        log_number = 1  # первая строка будет заголовком, следующая — первая запись
+        log_number = 1  
 
     row = [
         log_number,
@@ -55,13 +55,13 @@ def log_action(user_id, username, motion, api, api_answer):
         if not file_exists:
             writer.writerow(["Unic_ID", "User_ID", "TG_nick", "Motion", "API", "Date", "Time", "API_answer"])
         writer.writerow(row)
-# /start
+
 @dp.message(Command("start"))
 async def start_handler(message: Message):
     log_action(message.from_user.id, message.from_user.username, "Command", "NONE", "NONE")
     await message.answer("Выберите API:", reply_markup=keyboard.as_markup(resize_keyboard=True))
 
-# Обработка кнопок
+
 @dp.message(F.text.in_(["Финансы", "Гео", "Погода"]))
 async def api_handler(message: Message):
     api_name = ""
@@ -101,16 +101,17 @@ async def api_handler(message: Message):
 
     log_action(message.from_user.id, message.from_user.username, "Button press", api_name, api_answer)
 
-# Эхо
+
 @dp.message()
 async def echo_handler(message: Message):
     log_action(message.from_user.id, message.from_user.username, "Keyboard typing", "NONE", "NONE")
     await message.answer(f"Вы написали: {message.text}")
 
-# Запуск
+
 async def main():
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
