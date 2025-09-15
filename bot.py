@@ -28,10 +28,19 @@ keyboard.add(
 )
 keyboard.adjust(2)
 
-# Логирование
 def log_action(user_id, username, motion, api, api_answer):
     now = datetime.now()
+    file_exists = exists(LOG_FILE)
+
+    # Определяем номер лога
+    if file_exists:
+        with open(LOG_FILE, mode='r', encoding='utf-8') as f:
+            log_number = sum(1 for _ in f)
+    else:
+        log_number = 1  # первая строка будет заголовком, следующая — первая запись
+
     row = [
+        log_number,
         user_id,
         username or 'NONE',
         motion,
@@ -40,13 +49,12 @@ def log_action(user_id, username, motion, api, api_answer):
         now.strftime("%H:%M:%S"),
         api_answer
     ]
-    file_exists = exists(LOG_FILE)
+
     with open(LOG_FILE, mode='a', encoding='utf-8', newline='') as f:
         writer = csv.writer(f)
         if not file_exists:
-            writer.writerow(["Unic_ID", "TG_nick", "Motion", "API", "Date", "Time", "API_answer"])
+            writer.writerow(["Unic_ID", "User_ID", "TG_nick", "Motion", "API", "Date", "Time", "API_answer"])
         writer.writerow(row)
-
 # /start
 @dp.message(Command("start"))
 async def start_handler(message: Message):
@@ -105,3 +113,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
